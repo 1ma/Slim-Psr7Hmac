@@ -4,20 +4,23 @@ namespace UMA\Slim\Psr7Hmac\Defaults;
 
 use UMA\Slim\Psr7Hmac\SecretProviderInterface;
 
+/**
+ * Simple implementation of the SecretProviderInterface that
+ * returns secrets from a hardcoded map of key -> secret entries.
+ */
 class KeyValueSecretProvider implements SecretProviderInterface
 {
     /**
      * @var string[]
      */
-    private $secrets = [];
+    private $secrets;
 
     /**
-     * @param string $key
-     * @param string $secret
+     * @param string[] $keyValueMap
      */
-    public function addSecret($key, $secret)
+    public function __construct(array $keyValueMap = [])
     {
-        $this->secrets[$key] = $secret;
+        $this->secrets = $keyValueMap;
     }
 
     /**

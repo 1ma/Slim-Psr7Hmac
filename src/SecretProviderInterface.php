@@ -2,10 +2,14 @@
 
 namespace UMA\Slim\Psr7Hmac;
 
+/**
+ * Contract for classes that find secrets used to
+ * verify incoming requests.
+ */
 interface SecretProviderInterface
 {
     /**
-     * Retrieves the secret for a given key. If no such
+     * Retrieves the secret associated to a given key. If no such
      * secret exists the implementer must return null.
      *
      * @param string $key
