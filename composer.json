@@ -1,0 +1,24 @@
+{
+    "name": "uma/slim-hmac-middleware",
+    "description": "Slim middleware for uma/psr7-hmac based authentication",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["http", "psr7", "hmac", "slim", "middleware"],
+    "homepage": "https://github.com/1ma/Slim-Psr7Hmac",
+    "support": {
+        "issues": "https://github.com/1ma/Slim-Psr7Hmac/issues",
+        "source": "https://github.com/1ma/Slim-Psr7Hmac"
+    },
+    "autoload": {
+        "psr-4": {
+            "UMA\\Slim\\Psr7Hmac\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">= 5.6",
+        "uma/psr7-hmac": "^0.6.0"
+    },
+    "require-dev": {
+        "slim/slim": "^3.8"
+    }
+}
