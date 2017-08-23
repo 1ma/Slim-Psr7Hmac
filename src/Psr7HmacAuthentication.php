@@ -5,41 +5,39 @@ namespace UMA\Slim\Psr7Hmac;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use UMA\Psr7Hmac\Verifier;
-use UMA\Slim\Psr7Hmac\Defaults\UnauthenticatedHandler;
 
 class Psr7HmacAuthentication
 {
     const DEFAULT_API_KEY_HEADER = 'Api-Key';
 
     /**
-     * @var SecretProviderInterface
+     * @var KeyProviderInterface
      */
-    private $provider;
+    private $keyProvider;
 
     /**
-     * @var string
+     * @var SecretProviderInterface
      */
-    private $apiKeyHeader;
+    private $secretProvider;
 
     /**
      * @var UnauthenticatedHandlerInterface
      */
-    private $handler;
+    private $unauthenticatedHandler;
 
     /**
-     * @param SecretProviderInterface         $provider
-     * @param UnauthenticatedHandlerInterface $handler
-     * @param string                          $apiKeyHeader
+     * @param SecretProviderInterface         $secretProvider
+     * @param KeyProviderInterface            $keyProvider
+     * @param UnauthenticatedHandlerInterface $unauthenticatedHandler
      */
     public function __construct(
-        SecretProviderInterface $provider,
-        UnauthenticatedHandlerInterface $handler = null,
-        $apiKeyHeader = self::DEFAULT_API_KEY_HEADER
+        KeyProviderInterface $keyProvider,
+        SecretProviderInterface $secretProvider,
+        UnauthenticatedHandlerInterface $unauthenticatedHandler
     ) {
-        $this->provider = $provider;
-        $this->apiKeyHeader = $apiKeyHeader;
-        $this->handler = null === $handler ?
-            new UnauthenticatedHandler : $handler;
+        $this->keyProvider = $keyProvider ;
+        $this->secretProvider = $secretProvider;
+        $this->unauthenticatedHandler = $unauthenticatedHandler;
     }
 
     /**
@@ -51,12 +49,12 @@ class Psr7HmacAuthentication
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        if ('' === $apiKey = $request->getHeaderLine($this->apiKeyHeader)) {
-            return $this->halt($request, $response, "Missing '{$this->apiKeyHeader}' header in request");
+        if (null === $key = $this->keyProvider->getKeyFrom($request)) {
+            return $this->halt($request, $response, 'Could not retrieve key from request');
         }
 
-        if (null === $secret = $this->provider->getSecretFor($apiKey)) {
-            return $this->halt($request, $response, "Could not find secret for '{$apiKey}' key");
+        if (null === $secret = $this->secretProvider->getSecretFor($key)) {
+            return $this->halt($request, $response, "Could not find secret for '{$key}' key");
         }
 
         if (false === (new Verifier)->verify($request, $secret)) {
@@ -75,10 +73,10 @@ class Psr7HmacAuthentication
      */
     private function halt(ServerRequestInterface $request, ResponseInterface $response, $reason)
     {
-        $unauthenticatedHandler = $this->handler;
+        $unauthenticatedHandler = $this->unauthenticatedHandler;
 
         return $unauthenticatedHandler(
-            $request->withAttribute(UnauthenticatedHandler::ATTR, $reason), $response
+            $request->withAttribute(UnauthenticatedHandlerInterface::ATTR, $reason), $response
         );
     }
 }

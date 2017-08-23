@@ -3,8 +3,9 @@
 namespace UMA\Slim\Psr7Hmac;
 
 /**
- * Contract for classes that find secrets used to
- * verify incoming requests.
+ * Contract for classes that find secrets associated
+ * to given keys. The middleware then use these secrets
+ * to verify the incoming request with HMAC.
  */
 interface SecretProviderInterface
 {
