@@ -11,6 +11,10 @@ services:
     image: nginx:1.13-alpine
     depends_on:
       - fpm
+    networks:
+      default:
+        aliases:
+          - slim-psr7hmac.test
     ports:
       - 80
     volumes:

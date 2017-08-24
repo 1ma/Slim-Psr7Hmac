@@ -14,6 +14,11 @@
             "UMA\\Slim\\Psr7Hmac\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "UMA\\Slim\\Tests\\Psr7Hmac\\": "tests/classes/"
+        }
+    },
     "require": {
         "php": ">= 5.6",
         "uma/psr7-hmac": "^0.6.0"
@@ -21,5 +26,11 @@
     "require-dev": {
         "guzzlehttp/guzzle": "^6.3",
         "slim/slim": "^3.8"
+    },
+    "scripts": {
+        "test": [
+            "docker-compose -f tests/docker-compose.yml up -d",
+            "docker-compose -f tests/docker-compose.yml exec -T runner sh -c \"phpunit.phar\""
+        ]
     }
 }
