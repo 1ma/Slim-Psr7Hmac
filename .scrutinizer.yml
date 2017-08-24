@@ -1,0 +1,14 @@
+filter:
+    excluded_paths:
+        - 'tests/*'
+checks:
+    php: true
+coding_style:
+    php: {  }
+build:
+    environment:
+        php: '7.1'
+        docker: true
+    tests:
+        override:
+            - 'composer test'
