@@ -3,9 +3,9 @@
 use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use UMA\Slim\Psr7Hmac\Defaults\HardcodedSecretProvider;
-use UMA\Slim\Psr7Hmac\Defaults\NullKeyProvider;
-use UMA\Slim\Psr7Hmac\Defaults\UnauthenticatedHandler;
+use UMA\Slim\Psr7Hmac\SecretProvider\HardcodedSecretProvider;
+use UMA\Slim\Psr7Hmac\KeyProvider\NullKeyProvider;
+use UMA\Slim\Psr7Hmac\Handler\UnauthenticatedHandler;
 use UMA\Slim\Psr7Hmac\Psr7HmacAuthentication;
 
 require __DIR__ . '/../../vendor/autoload.php';

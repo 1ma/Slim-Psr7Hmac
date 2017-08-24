@@ -1,6 +1,6 @@
 <?php
 
-namespace UMA\Slim\Psr7Hmac\Defaults;
+namespace UMA\Slim\Psr7Hmac\KeyProvider;
 
 use Psr\Http\Message\ServerRequestInterface;
 use UMA\Slim\Psr7Hmac\KeyProviderInterface;

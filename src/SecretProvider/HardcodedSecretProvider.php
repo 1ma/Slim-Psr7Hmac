@@ -1,6 +1,6 @@
 <?php
 
-namespace UMA\Slim\Psr7Hmac\Defaults;
+namespace UMA\Slim\Psr7Hmac\SecretProvider;
 
 use UMA\Slim\Psr7Hmac\SecretProviderInterface;
 

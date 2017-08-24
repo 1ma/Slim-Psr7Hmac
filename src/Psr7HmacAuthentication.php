@@ -8,8 +8,6 @@ use UMA\Psr7Hmac\Verifier;
 
 class Psr7HmacAuthentication
 {
-    const DEFAULT_API_KEY_HEADER = 'Api-Key';
-
     /**
      * @var KeyProviderInterface
      */
