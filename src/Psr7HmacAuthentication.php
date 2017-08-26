@@ -59,7 +59,7 @@ class Psr7HmacAuthentication
             return $this->halt($request, $response, UnauthenticatedHandlerInterface::ERR_BROKEN_SIG);
         }
 
-        return $next($request, $response);
+        return $next($request->withAttribute('Authed-As', $key), $response);
     }
 
     /**
