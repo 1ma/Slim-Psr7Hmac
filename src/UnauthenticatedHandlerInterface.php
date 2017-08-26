@@ -10,16 +10,33 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 interface UnauthenticatedHandlerInterface
 {
-    const ATTR = 'Authentication-Failed';
+    /**
+     * The KeyProvider could not retrieve a key from
+     * the incoming request.
+     */
+    const ERR_NO_KEY = 0;
 
     /**
-     * Implementers are guaranteed that the $request object will have an
-     * 'Authentication-Failed' attribute explaining the reason it failed.
+     * The SecretProvider could not find a secret matching
+     * the key received in the request (i.e. is a made up key).
+     */
+    const ERR_NO_SECRET = 1;
+
+    /**
+     * The request might have been tampered in-flight,
+     * or a client is making up the value for the
+     * 'Authentication' header.
+     */
+    const ERR_BROKEN_SIG = 2;
+
+    /**
+     * $reason will always be one of the error codes defined in this contract.
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
+     * @param int                    $reason
      *
      * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response);
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, $reason);
 }

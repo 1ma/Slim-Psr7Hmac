@@ -48,15 +48,15 @@ class Psr7HmacAuthentication
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         if (null === $key = $this->keyProvider->getKeyFrom($request)) {
-            return $this->halt($request, $response, 'Could not retrieve key from request');
+            return $this->halt($request, $response, UnauthenticatedHandlerInterface::ERR_NO_KEY);
         }
 
         if (null === $secret = $this->secretProvider->getSecretFor($key)) {
-            return $this->halt($request, $response, "Could not find secret for '{$key}' key");
+            return $this->halt($request, $response, UnauthenticatedHandlerInterface::ERR_NO_SECRET);
         }
 
         if (false === (new Verifier)->verify($request, $secret)) {
-            return $this->halt($request, $response, 'Broken HMAC signature!');
+            return $this->halt($request, $response, UnauthenticatedHandlerInterface::ERR_BROKEN_SIG);
         }
 
         return $next($request, $response);
@@ -73,8 +73,6 @@ class Psr7HmacAuthentication
     {
         $unauthenticatedHandler = $this->unauthenticatedHandler;
 
-        return $unauthenticatedHandler(
-            $request->withAttribute(UnauthenticatedHandlerInterface::ATTR, $reason), $response
-        );
+        return $unauthenticatedHandler($request, $response, $reason);
     }
 }

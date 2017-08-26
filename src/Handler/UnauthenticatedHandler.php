@@ -15,7 +15,7 @@ use UMA\Slim\Psr7Hmac\UnauthenticatedHandlerInterface;
  */
 class UnauthenticatedHandler implements UnauthenticatedHandlerInterface
 {
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, $reason)
     {
         return $response
             ->withStatus(401)
