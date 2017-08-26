@@ -40,4 +40,21 @@ class PDOSecretProviderTest extends \PHPUnit_Framework_TestCase
             'pgsql' => [new \PDO('pgsql:host=pgsql;dbname=psr7hmac_test;user=postgres;password=postgres')]
         ];
     }
+
+    public function testUnsupportedDriver()
+    {
+        $this->expectException(\RuntimeException::class);
+
+        /** @var \PDO|\PHPUnit_Framework_MockObject_MockObject $pdo */
+        $pdo = $this->getMockBuilder(\PDO::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $pdo->expects($this->once())
+            ->method('getAttribute')
+            ->with(\PDO::ATTR_DRIVER_NAME)
+            ->will($this->returnValue('oci'));
+
+        new PDOSecretProvider($pdo, 'api_clients', 'api_key', 'secret');
+    }
 }

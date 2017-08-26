@@ -11,4 +11,8 @@ build:
         docker: true
     tests:
         override:
-            - 'composer test'
+            -
+                command: composer test
+                coverage:
+                    file: build/coverage.xml
+                    format: php-clover
