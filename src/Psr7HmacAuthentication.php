@@ -33,7 +33,7 @@ class Psr7HmacAuthentication
         SecretProviderInterface $secretProvider,
         UnauthenticatedHandlerInterface $unauthenticatedHandler
     ) {
-        $this->keyProvider = $keyProvider ;
+        $this->keyProvider = $keyProvider;
         $this->secretProvider = $secretProvider;
         $this->unauthenticatedHandler = $unauthenticatedHandler;
     }
