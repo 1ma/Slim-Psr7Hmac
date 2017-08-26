@@ -18,11 +18,12 @@ class PDOSecretProvider implements SecretProviderInterface
     private $stmt;
 
     /**
-     * @param \PDO   $pdo    An open PDO link to a database containing a table with authentication secrets
-     * @param string $table  Name of the table holding the secrets
-     * @param string $column Name of the column where secrets are stored
+     * @param \PDO   $pdo          An open PDO link to a database containing a table with authentication secrets
+     * @param string $table        Name of the table holding the key <-> secret relationship
+     * @param string $keyColumn    Name of the column where keys are stored
+     * @param string $secretColumn Name of the column where secrets are stored
      */
-    public function __construct(\PDO $pdo, $table, $column)
+    public function __construct(\PDO $pdo, $table, $keyColumn, $secretColumn)
     {
         $pdoDriver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
 
@@ -31,9 +32,9 @@ class PDOSecretProvider implements SecretProviderInterface
         }
 
         $this->stmt = $pdo->prepare("
-          SELECT $column
+          SELECT $secretColumn
           FROM $table
-          WHERE $column = :key
+          WHERE $keyColumn = :key
           LIMIT 1
         ");
     }
