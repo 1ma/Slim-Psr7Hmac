@@ -23,3 +23,10 @@ services:
     volumes:
       - ..:/var/www/slim-psr7hmac.test
     working_dir: /var/www/slim-psr7hmac.test
+  starter:
+    image: dadarek/wait-for-dependencies
+    command: fpm:9000 nginx:80
+    depends_on:
+      - runner
+      - nginx
+      - fpm

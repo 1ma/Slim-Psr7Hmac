@@ -29,7 +29,7 @@
     },
     "scripts": {
         "test": [
-            "docker-compose -f tests/docker-compose.yml up -d",
+            "docker-compose -f tests/docker-compose.yml run --rm starter",
             "docker-compose -f tests/docker-compose.yml exec -T runner sh -c \"phpunit.phar\""
         ]
     }
