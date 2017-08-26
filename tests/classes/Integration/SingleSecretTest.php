@@ -2,23 +2,11 @@
 
 namespace UMA\Slim\Tests\Psr7Hmac\Integration;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\RequestOptions;
 use UMA\Psr7Hmac\Signer;
 
-class SingleSecretTest extends \PHPUnit_Framework_TestCase
+class SingleSecretTest extends IntegrationTestCase
 {
-    /**
-     * @var Client
-     */
-    private $http;
-
-    protected function setUp()
-    {
-        $this->http = new Client([RequestOptions::HTTP_ERRORS => false]);
-    }
-
     public function testSignedRequest()
     {
         $signedRequest = (new Signer('a_secret'))
@@ -32,11 +20,10 @@ class SingleSecretTest extends \PHPUnit_Framework_TestCase
     public function testAddingExtraHeadersToSignedRequest()
     {
         $signedRequest = (new Signer('a_secret'))
-            ->sign(new Request('GET', 'http://single-secret.test/protected'));
+            ->sign(new Request('GET', 'http://single-secret.test/protected'))
+            ->withHeader('Accept', 'text/html');
 
-        $response = $this->http->send(
-            $signedRequest->withHeader('Accept', 'text/html')
-        );
+        $response = $this->http->send($signedRequest);
 
         self::assertSame(202, $response->getStatusCode());
     }
@@ -53,10 +40,22 @@ class SingleSecretTest extends \PHPUnit_Framework_TestCase
     public function testTamperedHeader()
     {
         $signedRequest = (new Signer('a_secret'))
-            ->sign(new Request('GET', 'http://single-secret.test/protected', ['Accept' => 'text/html']));
+            ->sign(new Request('GET', 'http://single-secret.test/protected', ['Accept' => 'text/html']))
+            ->withHeader('Accept', 'application/json');
+
+        $response = $this->http->send($signedRequest);
+
+        self::assertSame(401, $response->getStatusCode());
+    }
+
+    public function testTamperedBody()
+    {
+        /** @var Request $signedRequest */
+        $signedRequest = (new Signer('a_secret'))
+            ->sign(new Request('GET', 'http://single-secret.test/protected', [], 'hello'));
 
         $response = $this->http->send(
-            $signedRequest->withHeader('Accept', 'application/json')
+            $this->overrideBodyFrom($signedRequest, 'no, bye')
         );
 
         self::assertSame(401, $response->getStatusCode());
