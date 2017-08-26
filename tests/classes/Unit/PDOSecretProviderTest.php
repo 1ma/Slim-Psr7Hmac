@@ -6,14 +6,15 @@ use UMA\Slim\Psr7Hmac\SecretProvider\PDOSecretProvider;
 
 class PDOSecretProviderTest extends \PHPUnit_Framework_TestCase
 {
-    public function testIt()
+    /**
+     * @dataProvider pdoProvider
+     */
+    public function testIt(\PDO $pdo)
     {
-        $pdo = new \PDO('sqlite::memory:');
-
         $pdo->exec('
           CREATE TABLE api_clients (
-            api_key TEXT UNIQUE NOT NULL,
-            secret  TEXT        NOT NULL
+            api_key VARCHAR(16) UNIQUE NOT NULL,
+            secret  VARCHAR(16)        NOT NULL
           )
         ');
 
@@ -22,10 +23,21 @@ class PDOSecretProviderTest extends \PHPUnit_Framework_TestCase
             ('1234', '5678'), ('abcd', 'efgh')
         ");
 
-        $secretProvider = new PDOSecretProvider($pdo, 'api_clients', 'api_key', 'secret');
+        $provider = new PDOSecretProvider($pdo, 'api_clients', 'api_key', 'secret');
 
-        self::assertSame('5678', $secretProvider->getSecretFor('1234'));
-        self::assertSame(null, $secretProvider->getSecretFor('wololo'));
-        self::assertSame('efgh', $secretProvider->getSecretFor('abcd'));
+        self::assertSame('5678', $provider->getSecretFor('1234'));
+        self::assertSame(null, $provider->getSecretFor('wololo'));
+        self::assertSame('efgh', $provider->getSecretFor('abcd'));
+
+        $pdo->exec('DROP TABLE api_clients');
+    }
+
+    public function pdoProvider()
+    {
+        return [
+            'sqlite' => [new \PDO('sqlite::memory:')],
+            'mysql' => [new \PDO('mysql:host=mysql;dbname=psr7hmac_test', 'mysql', 'mysql')],
+            'pgsql' => [new \PDO('pgsql:host=pgsql;dbname=psr7hmac_test;user=postgres;password=postgres')]
+        ];
     }
 }
