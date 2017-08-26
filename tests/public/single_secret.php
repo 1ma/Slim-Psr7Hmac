@@ -24,7 +24,7 @@ $cnt[Psr7HmacAuthentication::class] = function ($cnt) {
 
 $app = new \Slim\App($cnt);
 
-$app->get('/foo', function (Request $request, Response $response) {
+$app->get('/protected', function (Request $request, Response $response) {
     $response->getBody()->write("Successful authentication!\n");
 
     return $response->withStatus(202);

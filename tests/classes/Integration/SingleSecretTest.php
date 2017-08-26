@@ -1,13 +1,13 @@
 <?php
 
-namespace UMA\Slim\Tests\Psr7Hmac;
+namespace UMA\Slim\Tests\Psr7Hmac\Integration;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use UMA\Psr7Hmac\Signer;
 
-class IntegrationTest extends \PHPUnit_Framework_TestCase
+class SingleSecretTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var Client
@@ -22,7 +22,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     public function testSignedRequest()
     {
         $signedRequest = (new Signer('a_secret'))
-            ->sign(new Request('GET', 'http://slim-psr7hmac.test/foo'));
+            ->sign(new Request('GET', 'http://single-secret.test/protected'));
 
         $response = $this->http->send($signedRequest);
 
@@ -32,7 +32,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     public function testAddingExtraHeadersToSignedRequest()
     {
         $signedRequest = (new Signer('a_secret'))
-            ->sign(new Request('GET', 'http://slim-psr7hmac.test/foo'));
+            ->sign(new Request('GET', 'http://single-secret.test/protected'));
 
         $response = $this->http->send(
             $signedRequest->withHeader('Accept', 'text/html')
@@ -43,7 +43,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
 
     public function testUnsignedRequest()
     {
-        $request = new Request('GET', 'http://slim-psr7hmac.test/foo');
+        $request = new Request('GET', 'http://single-secret.test/protected');
 
         $response = $this->http->send($request);
 
@@ -53,7 +53,7 @@ class IntegrationTest extends \PHPUnit_Framework_TestCase
     public function testTamperedHeader()
     {
         $signedRequest = (new Signer('a_secret'))
-            ->sign(new Request('GET', 'http://slim-psr7hmac.test/foo', ['Accept' => 'text/html']));
+            ->sign(new Request('GET', 'http://single-secret.test/protected', ['Accept' => 'text/html']));
 
         $response = $this->http->send(
             $signedRequest->withHeader('Accept', 'application/json')
