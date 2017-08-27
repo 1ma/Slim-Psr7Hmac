@@ -32,6 +32,17 @@ class PDOSecretProviderTest extends \PHPUnit_Framework_TestCase
         $pdo->exec('DROP TABLE api_clients');
     }
 
+    /**
+     * @dataProvider pdoProvider
+     */
+    public function testWrongTableInformation(\PDO $pdo)
+    {
+        $this->expectException(\PDOException::class);
+
+        (new PDOSecretProvider($pdo, 'foo', 'bar', 'baz'))
+            ->getSecretFor('wololo');
+    }
+
     public function pdoProvider()
     {
         return [

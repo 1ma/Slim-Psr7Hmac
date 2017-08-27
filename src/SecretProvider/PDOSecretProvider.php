@@ -22,36 +22,48 @@ class PDOSecretProvider implements SecretProviderInterface
      * @param string $table        Name of the table holding the key <-> secret relationship
      * @param string $keyColumn    Name of the column where keys are stored
      * @param string $secretColumn Name of the column where secrets are stored
+     *
+     * @throws \RuntimeException If the $pdo driver is not supported (see SUPPORTED_DRIVERS constant).
+     * @throws \PDOException     If the SQL statement cannot be prepared with the supplied table and column names.
      */
     public function __construct(\PDO $pdo, $table, $keyColumn, $secretColumn)
     {
         $pdoDriver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
 
         if (!in_array($pdoDriver, self::SUPPORTED_DRIVERS)) {
-            throw new \RuntimeException("Attempted to use an unsupported PDO driver: $pdoDriver");
+            throw new \RuntimeException("Attempted to use an unsupported PDO driver. Got: $pdoDriver");
         }
 
         $this->stmt = $pdo->prepare("
           SELECT $secretColumn
-          FROM $table
-          WHERE $keyColumn = :key
-          LIMIT 1
+            FROM $table
+           WHERE $keyColumn = :key
+           LIMIT 1
         ");
+
+        // If $pdo is configured as PDO:ERRMODE_SILENT (which is the default) prepare()
+        // will not throw a PDOException by itself, so it must be forced.
+        if (!$this->stmt instanceof \PDOStatement) {
+            throw new \PDOException(
+                "Could not prepare SQL statement with supplied data. Got: [$table, $keyColumn, $secretColumn]"
+            );
+        }
     }
 
     /**
-     * @param string $key
+     * {@inheritdoc}
      *
-     * @return string|null
-     *
-     * @throws \PDOException If PDO::ATTR_ERRMODE is set to ERRMODE_EXCEPTION and
-     *                       the DB link goes down after instantiating the class.
+     * @throws \PDOException If the prepared statement cannot be executed.
      */
     public function getSecretFor($key)
     {
         $this->stmt->bindValue('key', $key, \PDO::PARAM_STR);
 
-        $this->stmt->execute();
+        if (false === $this->stmt->execute()) {
+            throw new \PDOException(
+                "Could not execute prepared statement. Got error: {$this->stmt->errorInfo()[2]}"
+            );
+        }
 
         $secret = $this->stmt->fetch(\PDO::FETCH_COLUMN);
 
