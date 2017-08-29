@@ -4,6 +4,7 @@ namespace UMA\Slim\Psr7Hmac;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use UMA\Psr7Hmac\Inspector\InspectorInterface;
 use UMA\Psr7Hmac\Verifier;
 
 class Psr7HmacAuthentication
@@ -24,18 +25,26 @@ class Psr7HmacAuthentication
     private $unauthenticatedHandler;
 
     /**
+     * @var Verifier
+     */
+    private $verifier;
+
+    /**
      * @param SecretProviderInterface         $secretProvider
      * @param KeyProviderInterface            $keyProvider
      * @param UnauthenticatedHandlerInterface $unauthenticatedHandler
+     * @param InspectorInterface|null         $inspector
      */
     public function __construct(
         KeyProviderInterface $keyProvider,
         SecretProviderInterface $secretProvider,
-        UnauthenticatedHandlerInterface $unauthenticatedHandler
+        UnauthenticatedHandlerInterface $unauthenticatedHandler,
+        InspectorInterface $inspector = null
     ) {
         $this->keyProvider = $keyProvider;
         $this->secretProvider = $secretProvider;
         $this->unauthenticatedHandler = $unauthenticatedHandler;
+        $this->verifier = new Verifier($inspector);
     }
 
     /**
@@ -55,7 +64,7 @@ class Psr7HmacAuthentication
             return $this->halt($request, $response, UnauthenticatedHandlerInterface::ERR_NO_SECRET);
         }
 
-        if (false === (new Verifier)->verify($request, $secret)) {
+        if (false === $this->verifier->verify($request, $secret)) {
             return $this->halt($request, $response, UnauthenticatedHandlerInterface::ERR_BROKEN_SIG);
         }
 
